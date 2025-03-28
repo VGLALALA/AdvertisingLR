@@ -28,39 +28,51 @@ To develop an accurate model that can be used to predict sales on the basis of t
 
 ## 🔍 Dataset Visualization & Cleaning
 
-- The column `"Unnamed: 0"` was determined to be an index column with no predictive value and was removed.
-- Scatter plots of each feature were visualized to identify trends and outliers.
+The initial dataset included an extra column `"Unnamed: 0"`, which was just a row index and held no analytical value. This column was removed. Scatter plots showed how each advertising medium relates to sales and helped identify potential outliers.
 
 ---
 
 ## 📊 Mean, Median, and Mode Analysis
 
-- Histograms with vertical lines for **Mean** (Red), **Median** (Green), and **Mode** (Orange) were used to assess data distribution.
-  
+We computed the mean, median, and mode for each feature and visualized them on histograms. These statistics help us understand the central tendency and the shape of each distribution.
+
 ### Observations:
-- **TV**: Slightly right-skewed. Mean and median closely aligned.
-- **Radio**: Uniform to slightly left-skewed. All three measures close together.
-- **Newspaper**: Slight right-skew. Mean higher than median/mode.
-- **Sales**: Mild right skew. Mean > Median > Mode.
+
+- **TV**:
+  - The distribution appears slightly right-skewed.
+  - The close alignment of mean and median suggests a nearly symmetrical distribution.
+  - The mode is slightly lower than the mean/median, indicating a few higher values pulling the mean up slightly.
+
+- **Radio**:
+  - Distribution is close to uniform or slightly left-skewed.
+  - The near-equal values of mean, median, and mode suggest low skewness.
+  - This balanced distribution implies radio ad spending is evenly spread across samples.
+
+- **Newspaper**:
+  - Right-skewed with some high-value outliers.
+  - Mean is significantly higher than the median and mode.
+  - Indicates the presence of a small number of large ad spend values that inflate the average, which can distort regression analysis if not handled properly.
+
+- **Sales**:
+  - Mild right skew.
+  - Mean > Median > Mode pattern suggests the presence of some larger sales values that increase the average.
+  - Sales data is slightly spread out but relatively consistent compared to other features.
 
 ---
 
 ## 🧹 Outlier Removal Using IQR (Newspaper Column)
 
-To reduce the influence of extreme values:
+To address skewness in the Newspaper column:
 
-- IQR = Q3 - Q1 = 93.625 - 32.35 = 61.275
-- Upper Bound = Q3 + 1.5 × IQR = 93.625
-- Lower Bound is negative, thus ignored
-- Rows with Newspaper spend > 93.625 were removed
+1. Calculated the Interquartile Range (IQR).
+2. Identified upper outliers using the formula: `Upper Bound = Q3 + 1.5 × IQR`.
+3. Removed rows exceeding this upper bound.
 
-➡ **Result**: Dataset reduced from 200 rows to **198 rows**
+**Effect**: Removed only 2 rows, reducing the dataset from 200 to 198 rows. This cleaned data ensures that extreme values do not disproportionately influence the model.
 
 ---
 
 ## 📈 Variance Analysis
-
-Custom variance function was applied to understand feature dispersion.
 
 | Feature     | Variance  |
 |-------------|-----------|
@@ -69,10 +81,14 @@ Custom variance function was applied to understand feature dispersion.
 | Newspaper   | 415.94    |
 | Sales       | 26.86     |
 
-**Interpretation:**
-- TV has the highest variability.
-- Newspaper has second highest, aligning with detected outliers.
-- Sales has the lowest variance, indicating consistent outcomes.
+### Interpretation:
+
+- **TV**: Very high variance, indicating a broad spread in ad spending across samples. Companies are investing vastly different amounts in TV ads.
+- **Newspaper**: Moderate variance, but still notable. This supports the earlier observation about some companies spending heavily on newspapers.
+- **Radio**: Lower variance than newspaper, suggesting a more uniform investment pattern.
+- **Sales**: Lowest variance, implying that sales numbers are relatively consistent despite varying ad budgets.
+
+This analysis helps identify which features might need normalization before model training.
 
 ---
 
@@ -85,44 +101,102 @@ Custom variance function was applied to understand feature dispersion.
 | Newspaper   | 20.45          |
 | Sales       | 5.20           |
 
-**Interpretation:**
-- TV has the highest spread, again confirming ad spend volatility.
-- Sales is the most stable across all entries.
+### Interpretation:
+
+- **TV**: Highest standard deviation, confirming its wide investment spread. Could significantly influence model weight.
+- **Newspaper/Radio**: Moderate dispersion. Indicates that most values lie close to their means.
+- **Sales**: Tight distribution with the lowest standard deviation. Suggests stable sales performance across companies.
+
+Understanding standard deviation is essential for deciding whether to scale or normalize data during preprocessing.
 
 ---
 
 ## 📌 Pearson Correlation
 
-Manual and built-in Pearson correlation between **TV** and **Sales**:
-- Correlation Coefficient: **0.779**
+The correlation coefficient between **TV** and **Sales** is approximately **0.779**, indicating a **strong positive linear relationship**.
 
-➡ Strong positive correlation between TV advertising and sales.
+### Interpretation:
+
+- As TV ad spending increases, sales tend to increase as well.
+- The high correlation justifies using TV spend as a predictor in a linear regression model.
+- Other features (Radio, Newspaper) may have lower correlations, which can be analyzed in future multivariate models.
 
 ---
 
 ## 📐 Linear Regression Model
 
-**Model Used**: Ordinary Least Squares (OLS)
+We used a simple linear regression model using **TV advertising spend** as the independent variable and **Sales** as the dependent variable.
 
-- **Dependent Variable**: Sales
-- **Independent Variable**: TV Budget
-- Custom OLS functions defined and compared visually
+- The model is trained using the Ordinary Least Squares (OLS) method.
+- Calculated Coefficients:
+  - **Weight (Slope)** ≈ 0.047
+  - **Bias (Intercept)** ≈ 7.03
 
-**Learned Coefficients**:
-- Weight (Slope): ~0.047
-- Bias (Intercept): ~7.03
+### Interpretation:
 
-➡ Visualization confirms a good fit between TV budget and sales trend.
+- **Intercept (7.03)**: Baseline sales even when TV spend is zero.
+- **Slope (0.047)**: For every additional $1K spent on TV advertising, sales increase by ~47 units.
+- The model shows a good linear fit as visualized by the regression line, confirming that TV advertising is a strong predictor of sales.
 
 ---
 
 ## 🚀 Future Improvements
 
-- Extend current single-variable regression to **multi-variable linear regression**
-- Integrate Radio and Newspaper data into modeling
-- Apply advanced models like Ridge, Lasso, or tree-based methods
-- Deploy model as an interactive web-based prediction tool
+- Incorporate **Radio** and **Newspaper** features to build a **multiple linear regression** model.
+- Perform **feature selection** and **dimensionality reduction** if needed.
+- Explore **non-linear models** or **regularized regressions** (Ridge, Lasso) for better generalization.
+- Create a **web interface** for users to input ad budgets and get sales predictions.
 
 ---
 
-> All code and analysis are in `project.ipynb`. This project demonstrates the foundational data exploration, preprocessing, and modeling process for sales prediction based on advertising budgets.
+> All code, analysis, and results are documented in `project.ipynb`. This project provides a full walkthrough from data preprocessing to model interpretation for sales prediction using advertising budget data.
+
+## 📊 Histogram Visualization with Mean, Median, and Mode
+
+To better understand the distribution of each numerical feature (TV, Radio, Newspaper, Sales), we used histograms overlaid with vertical lines indicating the **mean**, **median**, and **mode**:
+
+- **Red dashed line**: Mean — the average value
+- **Green dashed line**: Median — the middle value when sorted
+- **Orange dashed line**: Mode — the most frequently occurring value
+
+### Why Use Histograms?
+
+Histograms allow us to **visualize the shape and spread** of a dataset. When combined with statistical markers like mean, median, and mode, we gain insights into:
+
+- **Symmetry** or **skewness** of the data
+- **Presence of outliers**
+- **Tendency of central values**
+- **Suitability for linear modeling or transformation**
+
+### Feature-by-Feature Interpretation:
+
+- **TV**:
+  - Histogram shows a slight right skew.
+  - Mean and median are nearly aligned, indicating symmetry.
+  - The mode is a bit lower, hinting at a cluster of lower values but with a few higher outliers pulling the mean up.
+  - Overall, this suggests a well-behaved distribution suitable for linear modeling.
+
+- **Radio**:
+  - Histogram looks nearly uniform.
+  - All three lines (mean, median, mode) are closely aligned.
+  - This balance suggests a consistent distribution of radio advertising budgets with minimal skew.
+
+- **Newspaper**:
+  - Histogram is right-skewed.
+  - The mean is noticeably higher than both the median and mode.
+  - This points to the presence of a few very high advertising spend values that skew the average.
+  - May require normalization or outlier removal, which we addressed later using IQR.
+
+- **Sales**:
+  - Mild right skew, but much less than Newspaper.
+  - The lines are close but not perfectly aligned: Mean > Median > Mode.
+  - Indicates slightly higher-value sales affecting the mean, but overall fairly stable.
+
+### Conclusion:
+
+By visualizing the histogram with mean, median, and mode:
+- We validated assumptions about distribution shapes.
+- Identified features that may need transformation (e.g., Newspaper).
+- Verified the feasibility of using linear models on TV data.
+
+This method of analysis enhances our ability to clean, preprocess, and model data accurately by clearly showing **how values are distributed** and **where the majority of the data lies**.
