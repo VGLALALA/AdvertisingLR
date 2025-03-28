@@ -38,37 +38,17 @@ We computed the mean, median, and mode for each feature and visualized them on h
 
 ### Observations:
 
-- **TV**:
-  - The distribution appears slightly right-skewed.
-  - The close alignment of mean and median suggests a nearly symmetrical distribution.
-  - The mode is slightly lower than the mean/median, indicating a few higher values pulling the mean up slightly.
-
-- **Radio**:
-  - Distribution is close to uniform or slightly left-skewed.
-  - The near-equal values of mean, median, and mode suggest low skewness.
-  - This balanced distribution implies radio ad spending is evenly spread across samples.
-
-- **Newspaper**:
-  - Right-skewed with some high-value outliers.
-  - Mean is significantly higher than the median and mode.
-  - Indicates the presence of a small number of large ad spend values that inflate the average, which can distort regression analysis if not handled properly.
-
-- **Sales**:
-  - Mild right skew.
-  - Mean > Median > Mode pattern suggests the presence of some larger sales values that increase the average.
-  - Sales data is slightly spread out but relatively consistent compared to other features.
+- **TV**: Slight right-skew; mean and median aligned, mode slightly lower.
+- **Radio**: Nearly uniform; mean ≈ median ≈ mode.
+- **Newspaper**: Right-skewed; mean > median > mode, suggesting outliers.
+- **Sales**: Mild right-skew; values relatively consistent with normal-like distribution.
 
 ---
 
 ## 🧹 Outlier Removal Using IQR (Newspaper Column)
 
-To address skewness in the Newspaper column:
-
-1. Calculated the Interquartile Range (IQR).
-2. Identified upper outliers using the formula: `Upper Bound = Q3 + 1.5 × IQR`.
-3. Removed rows exceeding this upper bound.
-
-**Effect**: Removed only 2 rows, reducing the dataset from 200 to 198 rows. This cleaned data ensures that extreme values do not disproportionately influence the model.
+- IQR applied to remove outliers only in the Newspaper column.
+- Dataset reduced from 200 to 198 rows.
 
 ---
 
@@ -81,14 +61,8 @@ To address skewness in the Newspaper column:
 | Newspaper   | 415.94    |
 | Sales       | 26.86     |
 
-### Interpretation:
-
-- **TV**: Very high variance, indicating a broad spread in ad spending across samples. Companies are investing vastly different amounts in TV ads.
-- **Newspaper**: Moderate variance, but still notable. This supports the earlier observation about some companies spending heavily on newspapers.
-- **Radio**: Lower variance than newspaper, suggesting a more uniform investment pattern.
-- **Sales**: Lowest variance, implying that sales numbers are relatively consistent despite varying ad budgets.
-
-This analysis helps identify which features might need normalization before model training.
+- **TV** has high variance — diverse ad budgets.
+- **Sales** is consistent across entries.
 
 ---
 
@@ -101,52 +75,69 @@ This analysis helps identify which features might need normalization before mode
 | Newspaper   | 20.45          |
 | Sales       | 5.20           |
 
-### Interpretation:
-
-- **TV**: Highest standard deviation, confirming its wide investment spread. Could significantly influence model weight.
-- **Newspaper/Radio**: Moderate dispersion. Indicates that most values lie close to their means.
-- **Sales**: Tight distribution with the lowest standard deviation. Suggests stable sales performance across companies.
-
-Understanding standard deviation is essential for deciding whether to scale or normalize data during preprocessing.
+- High for TV, lowest for Sales.
 
 ---
 
 ## 📌 Pearson Correlation
 
-The correlation coefficient between **TV** and **Sales** is approximately **0.779**, indicating a **strong positive linear relationship**.
-
-### Interpretation:
-
-- As TV ad spending increases, sales tend to increase as well.
-- The high correlation justifies using TV spend as a predictor in a linear regression model.
-- Other features (Radio, Newspaper) may have lower correlations, which can be analyzed in future multivariate models.
+- TV vs Sales correlation ≈ 0.779
+- Strong positive linear relationship
 
 ---
 
 ## 📐 Linear Regression Model
 
-We used a simple linear regression model using **TV advertising spend** as the independent variable and **Sales** as the dependent variable.
-
-- The model is trained using the Ordinary Least Squares (OLS) method.
-- Calculated Coefficients:
-  - **Weight (Slope)** ≈ 0.047
-  - **Bias (Intercept)** ≈ 7.03
-
-### Interpretation:
-
-- **Intercept (7.03)**: Baseline sales even when TV spend is zero.
-- **Slope (0.047)**: For every additional $1K spent on TV advertising, sales increase by ~47 units.
-- The model shows a good linear fit as visualized by the regression line, confirming that TV advertising is a strong predictor of sales.
+- TV as predictor
+- OLS method
+- Slope ≈ 0.047, Intercept ≈ 7.03
+- Good visual fit
 
 ---
 
 ## 🚀 Future Improvements
 
-- Incorporate **Radio** and **Newspaper** features to build a **multiple linear regression** model.
-- Perform **feature selection** and **dimensionality reduction** if needed.
-- Explore **non-linear models** or **regularized regressions** (Ridge, Lasso) for better generalization.
-- Create a **web interface** for users to input ad budgets and get sales predictions.
+- Add multivariate regression
+- Explore regularization and non-linear models
+- Build interactive dashboard
 
 ---
 
-> All code, analysis, and results are documented in `project.ipynb`. This project provides a full walkthrough from data preprocessing to model interpretation for sales prediction using advertising budget data.
+## 🔁 Gradient Descent (To Be Explored in Future)
+
+While our current linear regression model uses the **Ordinary Least Squares (OLS)** analytical solution, another widely used optimization method is **Gradient Descent**.
+
+### What is Gradient Descent?
+
+Gradient Descent is an iterative algorithm used to minimize a cost function — typically Mean Squared Error (MSE) in regression tasks. It works by:
+
+1. Starting with initial guesses for the model's parameters (weights and bias).
+2. Calculating the gradient (slope of the cost function).
+3. Updating the parameters in the opposite direction of the gradient to reduce error.
+4. Repeating until the error converges to a minimum.
+
+### Why Use Gradient Descent?
+
+- Suitable for large datasets where OLS is computationally expensive.
+- Enables training more complex models like neural networks.
+- Allows for regularization techniques during optimization.
+
+In future versions of this project, we plan to implement Gradient Descent to allow more scalable, dynamic, and extendable modeling strategies.
+
+---
+
+## 🧮 Sales Distribution Insight
+
+Upon histogram inspection, the **Sales** feature exhibits characteristics of a **normal distribution**:
+
+- The distribution is unimodal and bell-shaped.
+- Most of the values cluster around the mean (~14), and fewer observations lie at the extremes.
+- Mean, median, and mode are closely aligned.
+
+### Why This Matters:
+
+- Many machine learning models, including linear regression, perform better when the target variable (Sales) is normally distributed.
+- A near-normal distribution supports assumptions like homoscedasticity (constant variance), which is beneficial for linear regression models.
+- It reduces the need for transformations (e.g., log scaling) before training.
+
+This supports our modeling approach and justifies the continued use of linear regression for predicting sales outcomes.
